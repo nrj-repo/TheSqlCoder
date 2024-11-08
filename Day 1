@@ -1,0 +1,24 @@
+-- (1) list of customers customer list
+select first_name,last_name,email from customer;
+
+
+-- (2) order list of customers by last name from 'z' to 'a', incase same last name order by fisrt name 'z' to 'a'
+select first_name,last_name,email from customer
+order by first_name desc,last_name desc;
+
+-- (3) different prices that have been paid, order from high to low
+select distinct amount from payment
+order by amount desc ;
+
+-- DAY 1 Challenge
+-- find distinct districts
+select distinct district from address;
+
+-- what is latest rental date
+select rental_date from rental order by rental_date desc limit 1;
+
+-- how many films does company have
+select count(*) from film;
+
+-- how many distinct last names of the customers are there
+select count(distinct last_name) from customer;
