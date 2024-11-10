@@ -1,0 +1,57 @@
+ -- no of payment with customer_id = 100
+select count(*) from payment
+where customer_id = 100;
+
+-- last name of customer eith first name as ERICA
+select first_name,last_name from customer 
+where first_name = 'ERICA';
+
+-- how many rentals have not been returned yet
+select count(*) from rental
+where return_date is null;
+
+-- list of payment_ids with an amount less than or equal to $2
+select payment_id, amount from payment
+where amount <= 2
+order by amount desc;
+
+-- list of payment for customer 322,346 and 354 and amount less than 2 or greater than 10 , order by customer asc and amount desc
+select * from payment
+where (customer_id = 322 or  customer_id = 346 or customer_id = 354)
+and (amount < 2 or amount > 10)
+order by customer_id asc, amount desc;
+
+-- find payments made betwwen 26 and 27 January with amount ranging bw=etwwen 1.99 and 3.99
+select count(*) from payment
+where amount between 1.99 and 3.99
+and payment_date BETWEEN '2020-01-26' and '2020-01-28'; --'2020-01-27 23:59'
+
+-- customers with ids - 12,25,67,93,124,234 and amount - 4.99,7.99,9.99 in the month of Jan 20220
+select * from payment
+where customer_id in (12,23,67,93,124,234)
+and amount in (4.99,7.99,9.99)
+and payment_date between '2020-01-01' and '2020-02-01';
+
+-- no of movies that contain Documantary in description
+select count(*) from film
+where description ilike '%documentary%';
+
+-- customers with first_name 3 letters long and last_name contains X or Y as last leter in last name
+select count(*) from customer
+where first_name like '___'
+and (last_name like '%X' or last_name like '%Y');
+
+-- no_of_movies that contain saga in description and movie title starts with A or ends with R
+select count(*) as no_of_movies from film
+where description ilike '%saga%'
+and (title like 'A%' or title like '%R');
+
+-- list of customers with second letter as a in firstname and contains er in firstname
+select * from customer
+where first_name ilike '%er%' and first_name ilike '_a%'
+order by last_name desc;
+
+--  no of payments on 2020-05-01 where amount is either 0 or betwwen 3.99 and 7.99
+select count(*) from payment
+where (amount = 0 or amount BETWEEN 3.99 and 7.99)
+and payment_date between '2020-05-01' and '2020-05-02';
