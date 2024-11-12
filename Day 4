@@ -1,0 +1,52 @@
+-- find customers with either firstname or last name is of more than 10 characters
+select lower(first_name),lower(last_name),lower(email) from customer
+where length(first_name) > 10 or length(last_name) > 10;
+
+-- extract last 5 chars of email
+select email,right(email,5) from customer
+
+-- extract . from email 
+select email,left(right(email,4),1) from customer;
+
+-- create list of anonymized version of email address
+select email,left(email,1)||'***'||right(email,19) as anonymized_email
+from customer;
+
+-- fetch email in prescribed format
+select email, left(email,1) || '***' || substring(email from position('.' in email) for 2) || '***'||
+substring(email from position('@' in email))
+from customer;
+select email, '***'|| substring(email from position('.' in email)-1 for 1 )
+|| substring(email from position('.' in email) for 2) || '***'||
+substring(email from position('@' in email))
+from customer;
+
+-- find month with highest total payment amount
+select extract(month from payment_date) as month, sum(amount) as total_payment_amount
+from payment
+group by month
+order by total_payment_amount desc;
+
+-- find day of the week with highest total payment amount (0 being Sunday)
+select extract(dow from payment_date) as day_of_week, sum(amount) as total_payment_amount
+from payment 
+group by day_of_week
+order by total_payment_amount desc;
+
+-- find highest amount once customer has spent in a week
+select customer_id,extract(week from payment_date)as week, sum(amount) as total_payment_amount
+from payment
+group by week,customer_id
+order by total_payment_amount desc;
+
+ -- create a list of all rental durations of customer_id 35
+ select customer_id,return_date-rental_date as rental_duration
+ from rental
+ where customer_id = 35;
+
+-- customer with highest avg rental duration
+ select customer_id, avg(return_date-rental_date) as rental_duration
+ from rental
+ group by customer_id
+ order by rental_duration desc;
+ 
