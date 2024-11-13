@@ -1,0 +1,49 @@
+-- create a list of film including relation of rental rate/replacement cost 
+-- where rental rate is less than 4% of replacemant cost, round percentage to 2 decimal places
+select film_id, round((rental_rate/replacement_cost)*100,2) as percentage
+from film
+where round((rental_rate/replacement_cost)*100,2) < 4
+order by percentage;
+
+-- how many high price tickets company sold
+select 
+case 
+	when total_amount < 20000.00 then 'low price ticket'
+	when total_amount < 150000 then 'mid price ticket'
+	else 'high price ticket'
+end as price_category,
+count(*) as no_of_tickets
+from bookings
+group by price_category;
+
+-- how many flights are scheduled for departure in following season
+-- winter (dec,jan,feb)
+-- spring (mar,apr,may)
+-- summer (jun,jul,aug)
+-- fall (sept,oct,nov)
+select count(*) as flights,
+case 
+	when to_char(scheduled_departure,'Mon') in ('Dec','Jan','Feb') then 'Winter'
+	when to_char(scheduled_departure,'Mon') in ('Mar','Apr','May') then 'Spring'
+	when to_char(scheduled_departure,'Mon') in ('Jun','Jul','Aug') then 'Summer'
+	else 'Fall'
+end as season
+from flights
+group by season;  
+
+-- create category of film and exclude films not falling in particular category
+select title,
+case 
+	when rating in ('PG','PG-13') or length > 210 then 'Great ratin or long (tier 1)'
+	when description like '%Drama%' and length > 90 then 'Long drama (tier 2)'
+	when description like '%Drama%' and length < 90 then 'Short drama (tier 3)'
+	when rental_rate < 1 then 'Very checp (tier 4)'
+end as category
+from film
+where case 
+	when rating in ('PG','PG-13') or length > 210 then 'Great ratin or long (tier 1)'
+	when description like '%Drama%' and length > 90 then 'Long drama (tier 2)'
+	when description like '%Drama%' and length < 90 then 'Short drama (tier 3)'
+	when rental_rate < 1 then 'Very checp (tier 4)'
+end is not null;
+
