@@ -1,0 +1,16 @@
+-- company wants to run a phone call compaign to all customers in Texas district
+select c.first_name,c.last_name,a.phone,a.district
+from customer c join address a on c.address_id = a.address_id
+where a.district ='Texas';
+
+-- find old addresses that are not relatefd to any customer
+select * from address a left join customer c on a.address_id = c.address_id
+where c.address_id is null;
+
+-- select first_name,last_name,email and country of Customers from Brazil
+select c.first_name,c.last_name,c.email,cu.country
+from customer  c 
+join address a on c.address_id = a.address_id
+join city ci on a.city_id = ci.city_id
+join country cu on cu.country_id = ci.country_id
+and cu.country = 'Brazil';
