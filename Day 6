@@ -14,3 +14,25 @@ join address a on c.address_id = a.address_id
 join city ci on a.city_id = ci.city_id
 join country cu on cu.country_id = ci.country_id
 and cu.country = 'Brazil';
+
+-- which passenger has spent most amount in their bookings
+select passenger_name,sum(total_amount) from bookings b
+left join tickets t on t.book_ref = b.book_ref
+group by passenger_name
+order by 2 desc
+limit 1;
+
+-- which fare condition ALEKSANDR IVANOV used the most
+select fare_conditions,passenger_name,count(*) 
+from tickets t join ticket_flights tf on t.ticket_no = tf.ticket_no
+and passenger_name = 'ALEKSANDR IVANOV'
+group by fare_conditions,passenger_name;
+
+-- which title has GEORGE LINTON rented the most
+select first_name,last_name,title,count(*) from customer cu
+join rental re on cu.customer_id = re.customer_id
+join inventory inv on inv.inventory_id = re.inventory_id
+join film fi on fi.film_id = inv.film_id
+where first_name ='GEORGE' and last_name = 'LINTON'
+group by first_name,last_name,title
+order by 4 desc;
