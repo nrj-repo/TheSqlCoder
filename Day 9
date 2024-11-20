@@ -1,0 +1,20 @@
+create table if not exists director (
+	director_id serial primary key,
+	director_account_name varchar(20) unique,
+	first_name varchar(50),
+	last_name varchar(50) default 'not specified',
+	date_of_birth date,
+	address_id int references address(address_id)
+);
+
+alter table director
+alter column director_account_name type varchar(30), --1
+alter column last_name drop default,				  --2
+alter column last_name set not null,				  --3	
+add column email varchar(40);						  --4
+
+alter table director
+rename column director_account_name to account_name; --5
+
+alter table director
+rename to directors;                                 --6
