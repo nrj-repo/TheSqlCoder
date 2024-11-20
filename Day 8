@@ -92,3 +92,5 @@ group by district,p.customer_id)
 group by district 
 order by 2 desc;
 
+
+
