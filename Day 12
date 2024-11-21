@@ -1,0 +1,47 @@
+-- grouping sets
+-- 1 write query that returns sum of amount for each customer(firstname and lastname)
+-- and each staff_id.Also add overall revenue per customer.
+select
+	c.first_name,c.last_name,p.staff_id,sum(amount)
+from customer c join payment p on p.customer_id = c.customer_id
+group by 
+	grouping sets(
+		(first_name,last_name),(first_name,last_name,staff_id)
+	)
+order by 1,2,3;
+
+-- 2 write query that now calculates the shares of each revenue ech staff_id makes per customer
+select
+	c.first_name,c.last_name,p.staff_id,sum(amount)as total,
+	round(sum(amount)/
+	first_value(
+		sum(amount)) over (partition by first_name,last_name order by sum(amount) desc)*100,2) as percentage
+from customer c join payment p on p.customer_id = c.customer_id
+group by 
+	grouping sets(
+		(first_name,last_name),(first_name,last_name,staff_id)
+	)
+order by 1,2,3;
+
+-- 3 write query that calculates booking amount rollup for hierarchy of quarter,month,week in month and day
+select 
+	extract(quarter from book_date) as quarter,
+	extract(month from book_date) as month,
+	to_char(book_date,'w') as week_in_month,
+	date(book_date),
+	sum(total_amount)
+from bookings
+group by 
+rollup(
+	extract(quarter from book_date),
+	extract(month from book_date),
+	to_char(book_date,'w'),
+	date(book_date)
+order by 1,2,3,4;
+
+-- 4 find pairs of films with same length
+select 
+f1.title,f2.title,f1.length
+from film f1 join film f2 on f1.length = f2.length and f1.film_id <> f2.film_id
+order by 3 desc;
+
