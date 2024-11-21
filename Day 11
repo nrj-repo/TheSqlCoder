@@ -1,0 +1,55 @@
+-- Window functions
+-- 1 list of movies including film_id,title,length,category,avg length of movie in that category
+select f.film_id,f.title,f.length,c.name,
+round(avg(length) over(partition by name),2) as avg_category_length
+from film f 
+left join film_category fc on f.film_id = fc.film_id
+left join category c on c.category_id = fc.category_id
+order by f.film_id;
+
+-- 2 query that returns payment details including number of payments 
+-- that were made by this customer with that amount,order by payment_id
+select *,
+count(*) over(partition by customer_id,amount) as no_of_payments_with_that_amount
+from payment
+order by 1;
+
+-- 3 query that returns running total of how late the flights are
+-- (difference b/w actual-arrival and scheduled arrival) ordered by flight_id
+-- including departure airport
+select
+	flight_id,departure_airport,
+	sum(actual_arrival-scheduled_arrival) over(order by flight_id ) 	
+from flights;
+
+-- 4 secondquery, calculate same running but partition also by departure airport
+select
+	flight_id,departure_airport,
+	sum(actual_arrival-scheduled_arrival) over(partition by departure_airport order by flight_id ) 	
+from flights;
+
+-- 5 write a query that returns customer's name,country and how many payments they have.
+select name,country,
+count(*)
+from customer_list cl
+join payment p on p.customer_id = cl.id
+group by name,country;
+
+-- 6 
+select * from
+(select name,country,
+count(*),
+rank() over(partition by country order by count(*) desc) as rank
+from customer_list cl
+join payment p on p.customer_id = cl.id
+group by name,country)
+where rank between 1 and 3;
+
+-- 7 write query that returns revenue of the day and revenue of the previous day
+select 
+sum(amount),
+date(payment_date)as day,
+lag(sum(amount)) over(order by date(payment_date)) as previous_day,
+sum(amount) - lag(sum(amount)) over(order by date(payment_date)) as difference
+from payment
+group by 2;
