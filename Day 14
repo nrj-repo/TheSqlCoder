@@ -1,0 +1,57 @@
+--1 total amount of ayments thus customer has made.
+create or replace function name_search(f_name varchar(20),l_name varchar(20))
+	returns decimal(6,2)
+	language plpgsql
+	as
+	$$
+	declare
+	total_amount decimal(6,2);
+	begin
+	select sum(amount)
+	into total_amount
+	from payment natural left join customer
+	where first_name = f_name and last_name = l_name;
+	return total_amount;
+	end;
+	$$
+
+select name_search('AMY','LOPEZ');
+
+-- 2 create a SP called emp_swap that accepts two parameters emp1 and amp2 as inputs 
+-- and swaps the two employees' position and salary
+
+CREATE OR REPLACE PROCEDURE emp_swap(emp1 INT, emp2 INT)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    salary1 DECIMAL(8, 2);
+    salary2 DECIMAL(8, 2);
+    position1 TEXT;
+    position2 TEXT;
+BEGIN
+    -- Store values in variables
+    SELECT salary, position_title
+    INTO salary1, position1
+    FROM employees
+    WHERE emp_id = emp1;
+
+    SELECT salary, position_title
+    INTO salary2, position2
+    FROM employees
+    WHERE emp_id = emp2;
+
+    -- Update the values
+    UPDATE employees
+    SET salary = salary2,
+        position_title = position2
+    WHERE emp_id = emp1;
+
+    UPDATE employees
+    SET salary = salary1,
+        position_title = position1
+    WHERE emp_id = emp2;
+END;
+$$;
+
+
+call emp_swap(1,2);
