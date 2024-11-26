@@ -1,0 +1,107 @@
+-- cte
+-- Challenge 1: Using a Simple CTE
+-- Objective:
+-- Calculate the total rental count and total rental amount for each customer, and list customers who have rented more than the average number of films.
+-- Context:
+-- In the DVD rental business, we need to understand customer behavior by calculating how many movies each customer has rented and how much they have spent. We will then identify customers who rent movies more frequently than the average customer.
+-- Setup:
+-- The DVD rental database already includes the following tables:
+--customer, rental, payment
+-- Challenge:
+-- Create a CTE to calculate the total rental count and total rental amount for each customer.
+-- Use the CTE to filter customers who have rented more than the average number of films.
+
+with cte as (
+	select c.customer_id,c.first_name,c.last_name,
+			count(r.rental_id) as rental_count,
+			sum(p.amount) as total_payment
+	from customer c 
+	join payment p on c.customer_id = p.customer_id
+	join rental r on p.rental_id = r.rental_id
+	group by c.customer_id,c.first_name,c.last_name)
+select customer_id,first_name,last_name,rental_count,total_payment
+from cte
+where rental_count > (select avg(rental_count) from cte);
+
+-- 2
+-- define cte for calculating total spending per customer
+-- define cte for finding high-spending customers
+-- use ctes to find films rented by high spending customers
+
+with cte_customer_spending as (
+	select c.customer_id,c.first_name,c.last_name,sum(p.amount) as total_amount
+	from customer c join payment p on c.customer_id = p.customer_id
+	group by c.customer_id,c.first_name,c.last_name
+),
+cte_high_spending_customers as (
+	select cs.customer_id,cs.first_name,cs.last_name,cs.total_amount
+	from cte_customer_spending cs 
+	where total_amount > (select avg(total_amount) from cte_customer_spending)
+)
+select hsc.customer_id,hsc.first_name,hsc.last_name,hsc.total_amount,f.film_id,f.title
+from cte_high_spending_customers hsc 
+join rental r on hsc.customer_id = r.customer_id
+join inventory i on i.inventory_id = r.inventory_id
+join film f on f.film_id = i.film_id;
+
+-- challenge 2
+--Challenge 2: Using Multiple CTEs
+--	Objective: Calculate the total rental count and total rental amount for each customer, identify customers who have rented more than the average number of films, and list the details of the films they have rented.
+--	Context: In the DVD rental business, we need to understand customer behavior by calculating how many movies each customer has rented and how much they have spent. We will then identify customers who rent movies more frequently than the average customer and list the details of the films they have rented.
+--	Note:
+--	High-Rental Customers: Customers who have rented more than the average number of films.
+--	Setup:
+--	The DVD rental database already includes the following tables:
+--	customer
+--	rental
+--	payment
+--	inventory
+--	film
+--	We will use these existing tables to complete the exercise.
+--	Challenge:
+--	Create a CTE to calculate the total rental count and total rental amount for each customer.
+--	Create a CTE to calculate the average rental count across all customers.
+--	Create a CTE to identify customers who have rented more than the average number of films (high-rental customers).
+--	List the details of the films rented by these high-rental customers.
+--	Write your SQL query (one query) to achieve the above objectives.
+
+WITH cte_trca AS (
+    SELECT 
+        c.customer_id,
+        c.first_name,
+        c.last_name,
+        SUM(p.amount) AS total_amount,
+        COUNT(r.rental_id) AS total_count
+    FROM customer c
+    JOIN payment p ON c.customer_id = p.customer_id
+    JOIN rental r ON c.customer_id = r.customer_id AND p.rental_id = r.rental_id
+    GROUP BY c.customer_id, c.first_name, c.last_name
+),
+cte_avg_count AS (
+    SELECT 
+        AVG(total_count) AS avg_count
+    FROM cte_trca
+),
+cte_hrc AS (
+    SELECT 
+        ct.customer_id,
+        ct.first_name,
+        ct.last_name,
+        ct.total_count,
+        ct.total_amount
+    FROM cte_trca ct
+    CROSS JOIN cte_avg_count cac -- Ensure every row in cte_trca is compared to avg_count
+    WHERE ct.total_count > cac.avg_count
+)
+SELECT 
+    hrc.customer_id,
+    hrc.first_name,
+    hrc.last_name,
+    hrc.total_count,
+    hrc.total_amount,
+    f.film_id,
+    f.title
+FROM cte_hrc AS hrc
+JOIN rental r ON hrc.customer_id = r.customer_id
+JOIN inventory i ON i.inventory_id = r.inventory_id
+JOIN film f ON f.film_id = i.film_id; -- Link inventory to film
