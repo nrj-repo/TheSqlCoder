@@ -1,0 +1,221 @@
+SQL Topics Covered
+====================
+day - 1
+---------
+select , count ,distinct
+date format - YYYY-MM-DD
+
+day - 2
+---------
+filter - 
+	where , and ,or , between ( where peice between a and  b)
+	like (case sensitive) , ilike (case insensitive) - used to filter by matching against a pattern ( _,% )
+	-- single line comment
+	/* ... */ - multi-line comment
+
+day - 3
+---------
+Aggregare functions - Aggregate values in multiple rows to one value
+	sum(), avg(), min(), max(), count()
+	
+Group by - used to group result by non-aggregate columns
+Having - used with group by, used to filter grouping by aggregate columns
+
+day - 4
+---------
+SUBSTRING - used to extract a substring from a string
+	syntax - SUBSTRING(<string> from start [for length]) ex.- substring(email from 2 for 3) (from email we r extracting from 2nd index to 3 characters)
+
+position - to get position of char in a string ex- position('.' in email)
+
+extract - used to extract parts of timestamp/date
+	Field			Extract from timestamp/date
+	-----			----------------------------
+	CENTURY			Century
+	DAY				Day of month (1-31)
+	DECADE			Decade (year divided by 10)
+	DOW				Day of week, Sunday (0) to Saturday (6)
+	DOY				Day of year, ranges from 1 to 366
+	EPOCH			Number of seconds since 1970-01-01 00:00:00 UTC
+	HOUR			Hour (0-23)
+	ISODOW			ISO day of week, Monday (1) to Sunday (7)
+	ISOYEAR			ISO 8601 week-numbering year
+	MICROSECONDS	Seconds field, including fractional parts, multiplied by 1,000,000
+	MILLENNIUM		Millennium
+	MILLISECONDS	Seconds field, including fractional parts, multiplied by 1,000
+	MINUTE			Minute (0-59)
+	MONTH			Month (1-12)
+	QUARTER			Quarter of year
+	SECOND			Second
+	TIMEZONE		Timezone offset from UTC, measured in seconds
+	TIMEZONE_HOUR	Hour component of timezone offset
+	TIMEZONE_MINUTE	Minute component of timezone offset
+	WEEK			Number of ISO 8601 week-numbering week of the year
+	YEAR			Year
+
+to_char - used to get custom formats timestamp/date/numbers
+	ex - to_char(rantal_date,'MM-YYYY')
+
+day - 5
+---------
+mathematical functions - 
+	abs(x) - absolute value, round(x,d) - round upto d digits, ceiling(x) - round up to integer, floor(x) - round down to integer
+
+case 
+	when <condition1> then <result1>
+	when <condition2> then <result2>
+	else <result3>
+	end 
+	
+coalesce(value1,value2) - returns value2 if value1 is null (val1 and val2 should be of same datatype)
+cast - changes datatype of a value. ex. - cast(scheduled_arrival as varchar) - this will change datatype of scheduled_arrival into varchar
+replace - Replaces text from a string in a column with another text. ex.- REPLACE (column, old_text, new_text)
+
+
+day - 6
+-------
+JOINS -
+	inner join - common data in table, 
+	outer join - includes all rows from both tables, includes value as null if present in 1 table and not present in another table and vice-versa.
+	left join - includes all rows from left table and matched rows from right tabe, if values are not matched null is included for right table,
+	right join
+
+day - 7
+-------
+Union - duplicates are not included || data type of combining columns must be same
+Union All - duplicates are incuded
+
+Subquery - ex.- SELECT first_name, sales FROM employees e1
+					WHERE sales >
+								(SELECT AVG(sales) FROM employees e2
+								WHERE e1.city=e2.city )
+
+
+
+day - 9
+-------
+createa dn drop Database - 
+	create database company_x;
+	drop database company_x;
+	
+data types -
+	int
+	smallint
+	bigint
+	decimal
+	serial
+	varchar(n)
+	char(n)
+	text
+	date 
+	time
+	timestamp
+	boolean
+	enum - user defined list of values ex.- ('a','b','c')
+	array - stores a list of values
+
+constraints - not null | unique | default | primary key | foreign key |
+
+day 10 : 
+-----------
+create table as - 
+	CREATE TABLE customer_anonymous
+	AS 
+	SELECT customer_id, initials 
+	FROM customer
+	WHERE first_name LIKE 'C%';
+update, delete ,create table as, creating views,
+views - to save on storage and dynamic data
+		- stores query (logic ) only
+		-   CREATE VIEW customer_anonymous
+	  		AS 
+	  		SELECT customer_id, initials 
+	  		FROM customer
+			WHERE first_name LIKE 'C%' -
+
+materialized view - data is stored physically, performance ensured,can 
+	udate by - refresh materialized view <view_name>
+	syntax - create materializes vies <view_name>
+	as
+	<query>;
+	
+day 11 : Window Functions.
+--------------------------------
+window functions are not allowed in where clause
+ - over() partition by
+ - agg (col_name) over(partition by partition_column)
+ - rank() and dense_rank() -- continuous ranking in dense_rank()
+ - first_value() -- first_value(<column>) over()...
+ - lead() and lag() 
+ 
+day 12 : 
+---------------------------------
+ - grouping sets
+ - cube and rollup
+ - self join
+ - cross join -- cartesian product (all rows combination) (m*n)
+ - natural join -- joins table based on common column (use cautiously)
+ 
+day 14 : USER DEFINED FUNCTIONS
+---------------------------------
+ - PL/pgSQL --
+		-- user defined functions
+		create or replace function count_rr (min_r decimal(4,2),max_r decimal(4,2))
+		returns int
+		language plpgsql
+		as
+		$$
+		declare
+		movie_count int;
+		begin
+		select count(*)
+		into movie_count
+		from film
+		where rental_rate between min_r and max_r;
+		return movie_count;
+		end;
+		$$
+
+		-- function call
+		select count_rr (3,6);
+		
+ - transactions / rollback
+ - stored procedure - they support transactions, do not return value
+		It is useful for encapsulating logic that needs to be executed multiple times, improving performance, and maintaining consistency.
+		create or replace procedure sp_transfer 
+		(tr_amount int, sender int, recipient int)
+		language plpgsql
+		as
+		$$
+		begin
+		-- add balance
+		update  acc_balance
+		set amount = amount + tr_amount
+		where id = recipient;
+		-- subtract balance
+		update  acc_balance
+		set amount = amount - tr_amount
+		where id = sender;
+		commit;
+		end;
+		$$
+		
+day 15 : 
+----------------------------
+ - user management
+ - index -- to increase performance 
+	B-tree Index - default index, used when high cardinality
+	Bitmap index - good for dataware houses (large data + low cardinality)
+	
+day 16 : cte and recursive cte
+-----------------------
+with cte_sub as (
+	select f.film_id,f.title,count(r.rental_id) as rental_count
+	from film f
+	join inventory i on f.film_id = i.film_id
+	join rental r on r.inventory_id = i.inventory_id
+	group by f.film_id,f.title
+)
+select film_id,title,rental_count
+from cte_sub as film_rentals
+where rental_count > 30;
